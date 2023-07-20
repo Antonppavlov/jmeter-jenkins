@@ -43,7 +43,7 @@ pipeline {
 
         stage('Start Performance Tests') {
             steps {
-                script {
+                withMaven {
                     sh '''
                         mvn -DjmeterScript=jmeter_start_in_jenkins.jmx clean verify
                     '''
