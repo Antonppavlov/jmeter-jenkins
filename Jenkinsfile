@@ -17,38 +17,35 @@ pipeline {
 
         stage('Git checkout') {
             steps {
-                git 'https://github.com/Antonppavlov/jmeter-start-in-jenkins.git'
+                git 'https://github.com/Antonppavlov/jmeter-jenkins.git'
             }
         }
 
-        stage('Jmeter checkout') {
-            steps {
-                script{
-                    try {
-                        def jmeterAlreadyInstall = sh(script: 'cd apache-jmeter-5.6.2/bin', returnStdout: true).trim()
-                    } catch (Exception ex) {
-                        echo 'Install Jmeter'
-
-                        script {
-                            sh '''
-                                curl https://dlcdn.apache.org//jmeter/binaries/apache-jmeter-5.6.2.tgz -o apache-jmeter-5.6.2.tgz;
-                                tar -xvzf apache-jmeter-5.6.2.tgz;
-                               '''
-                        }
-                    }
-                }
-            }
-        }
+//        stage('Jmeter checkout') {
+//            steps {
+//                script{
+//                    try {
+//                        def jmeterAlreadyInstall = sh(script: 'cd apache-jmeter-5.6.2/bin', returnStdout: true).trim()
+//                    } catch (Exception ex) {
+//                        echo 'Install Jmeter'
+//
+//                        script {
+//                            sh '''
+//                                curl https://dlcdn.apache.org//jmeter/binaries/apache-jmeter-5.6.2.tgz -o apache-jmeter-5.6.2.tgz;
+//                                tar -xvzf apache-jmeter-5.6.2.tgz;
+//                               '''
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
 
         stage('Start Performance Tests') {
             steps {
                 script {
                     sh '''
-                        pwd; ls -ltrh;
-                        java -version;
-                        cd apache-jmeter-5.6.2/bin;
-                        sh jmeter.sh -n -t ../../jmeter_start_in_jenkins.jmx -l result.jtl -Jhost=wordpress
+                        mvn -DjmeterScript=jmeter_start_in_jenkins.jmx clean verify
                     '''
                 }
             }
@@ -56,7 +53,7 @@ pipeline {
 
         stage('Publish Performance test result report') {
             steps {
-                perfReport filterRegex: '', showTrendGraphs: true, sourceDataFiles: 'apache-jmeter-5.6.2/bin/result.jtl'
+                perfReport filterRegex: '', showTrendGraphs: true, sourceDataFiles: 'target/jmeter/results/jmeter_start_in_jenkins.jtl'
             }
         }
 
